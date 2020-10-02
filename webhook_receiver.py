@@ -17,7 +17,10 @@ def webhook_receive():
 
     with open(f'req-{seq}.json', 'w') as fd:
         cwd = os.getcwd()
-        json.dump(flask.request.json, fd, indent=2)
+        json.dump({
+            'headers': dict(flask.request.headers),
+            'body': flask.request.json
+        }, fd, indent=2)
         app.logger.info(f'wrote request {seq} ({cwd})')
         seq += 1
 
