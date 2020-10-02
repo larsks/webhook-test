@@ -8,3 +8,5 @@ Some interesting related articles:
 A neat tool for receiving webhooks:
 
 - https://github.com/adnanh/webhook
+
+I might try signing a commit.
