@@ -1,4 +1,5 @@
 import flask
+import hmac
 import json
 import logging
 import os
@@ -9,11 +10,22 @@ seq = 0
 
 logging.basicConfig(level=logging.INFO)
 
+HMAC_SECRET = os.environ.get('HOOK_HMAC_SECRET').encode()
+
 
 @app.route('/hook', methods=['POST'])
 def webhook_receive():
-    print('cwd:', os.getcwd())
     global seq
+
+    sig = flask.request.headers.get('x-hub-signature')
+    if sig is None:
+        app.logger.warning('no signature')
+    else:
+        alg, sig = sig.split('=', 1)
+        hasher = hmac.HMAC(HMAC_SECRET, digestmod=alg)
+        hasher.update(flask.request.data)
+        if hasher.hexdigest() != sig:
+            app.logger.warning('failed signature')
 
     with open(f'req-{seq}.json', 'w') as fd:
         cwd = os.getcwd()
